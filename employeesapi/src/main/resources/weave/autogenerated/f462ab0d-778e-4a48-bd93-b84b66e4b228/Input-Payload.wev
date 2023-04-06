@@ -1,0 +1,22 @@
+%dw 2.0
+
+type auto_f462ab0d_778e_4a48_bd93_b84b66e4b228_Input_Payload = {
+  lastName: String, 
+  country: String, 
+  weeklyHours: Number, 
+  positionTitle: String, 
+  city: String, 
+  postalCode: Number, 
+  addressLine: String, 
+  birthDate: String, 
+  firstName: String, 
+  phone: Number, 
+  middleName: String, 
+  currency: String, 
+  ID?: Number, 
+  basePay: Number, 
+  region: String, 
+  email: String, 
+  _?: Any
+}
+

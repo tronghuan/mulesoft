@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<configuration-properties doc:name="Configuration properties" doc:id="a266dd75-47e2-4043-a29b-1ba7eb904031" file="local.properties" />
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="89515b38-10a5-4720-b234-58d45286056f" >
+		<db:my-sql-connection host="${host}" port="${port}" user="${user}" password="${password}" database="${database}"/>
+	</db:config>
+	<flow name="getEmployees" doc:id="00d1aeb3-7ca2-4703-9c35-cdfdbdd771c8" >
+		<db:select doc:name="Select" doc:id="c10a7bb9-1579-42b5-8026-ecfd3ae0c280" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT * FROM employee]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="621c75fe-df94-48c3-8ecd-9fb77191f2e1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	ID: payload01.id,
+	firstName:payload01.firstName,
+	middleName:payload01.middleName,
+	lastName:payload01.lastName,
+	addressLine:payload01.addressLine,
+	city:payload01.city,
+	postalCode:payload01.postalCode,
+	country:payload01.country,
+	region:payload01.region,
+	birthDate:payload01.birthdate,
+	phone:payload01.phone,
+	email:payload01.email,
+	positionTitle:payload01.positionTitle,
+	weeklyHours:payload01.weeklyHours,
+	basePay:payload01.basePay,
+	currency:payload01.currency
+	
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="getEmployeeById" doc:id="48d7292d-0029-4388-9a01-fa0e9f590a11" >
+		<db:select doc:name="Select" doc:id="6710ca81-3b3e-4cfc-a6e2-ddfd5fab0d20" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT * FROM employee WHERE Id=:ID]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{'ID' : attributes.uriParams.ID}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="980199cc-4c02-4934-972b-7d4d5df03de3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	ID: payload01.id,
+	firstName:payload01.firstName,
+	middleName:payload01.middleName,
+	lastName:payload01.lastName,
+	addressLine:payload01.addressLine,
+	city:payload01.city,
+	postalCode:payload01.postalCode,
+	country:payload01.country,
+	region:payload01.region,
+	birthDate:payload01.birthdate,
+	phone:payload01.phone,
+	email:payload01.email,
+	positionTitle:payload01.positionTitle,
+	weeklyHours:payload01.weeklyHours,
+	basePay:payload01.basePay,
+	currency:payload01.currency
+	
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="insertEmployee" doc:id="5eaee6a5-d41f-4e2a-99e8-c16601bed706" >
+		<db:insert doc:name="Insert" doc:id="b2e6b8e3-bb51-4fba-95cc-66e41ae73cca" config-ref="Database_Config" >
+			<db:sql ><![CDATA[INSERT INTO employee (   firstname, middlename, lastname,    addressline, city, postalcode, country,    region, birthdate, phone, email, positiontitle,    weeklyhours, basepay, currency )
+VALUES (:firstName, :middleName, :lastName, :addressLine, :city, :postalCode, :country, :region, :birthDate, :phone, :email, :positionTitle, :weeklyHours, :basePay, :currency)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{'firstName':payload.firstName, 'middleName':payload.middleName, 'lastName':payload.lastName, 'addressLine':payload.addressLine, 'city':payload.city, 'postalCode':payload.postalCode, 'country':payload.country, 'region':payload.region, 'birthDate':payload.birthDate, 'phone':payload.phone, 'email':payload.email, 'positionTitle':payload.positionTitle, 'weeklyHours':payload.weeklyHours, 'basePay':payload.basePay, 'currency':payload.currency}]]]></db:input-parameters>
+		</db:insert>
+		<ee:transform doc:name="Transform Message" doc:id="c4065292-9398-4de7-ba62-9e02c9920b1f">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Message":"Insert data successfully."
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="updateEmployee" doc:id="f462ab0d-778e-4a48-bd93-b84b66e4b228" >
+		<db:update doc:name="Update" doc:id="7e78b295-8154-4be5-850a-cbc0338659df" config-ref="Database_Config">
+			<db:sql ><![CDATA[UPDATE employee
+SET
+	firstName=:firstName,
+	middleName=:middleName,
+	lastName=:lastName,
+	addressLine=:addressLine,
+	city=:city,
+	postalCode=:postalCode,
+	country=:country,
+	region=:region,
+	birthDate=:birthDate,
+	phone=:phone,
+	email=:email,
+	positionTitle=:positionTitle,
+	weeklyHours=:weeklyHours,
+	basePay=:basePay,
+	currency=:currency
+WHERE id=:ID]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	"ID":attributes.uriParams.ID,
+	"firstName":payload.firstName,
+	"middleName":payload.middleName,
+	"lastName":payload.lastName,
+	"addressLine":payload.addressLine,
+	"city":payload.city,
+	"postalCode":payload.postalCode,
+	"country":payload.country,
+	"region":payload.region,
+	"birthDate":payload.birthDate,
+	"phone":payload.phone,
+	"email":payload.email,
+	"positionTitle":payload.positionTitle,
+	"weeklyHours":payload.weeklyHours,
+	"basePay":payload.basePay,
+	"currency":payload.currency
+}]]]></db:input-parameters>
+		</db:update>
+		<ee:transform doc:name="Transform Message" doc:id="fd1906ec-eb20-4504-b128-a5a389a280b6" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Message":"Update data successfully."
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="deleteEmployee" doc:id="0c274855-8f31-4996-a4e9-071980a5bc61" >
+		<db:delete doc:name="Delete" doc:id="b1b8d69e-a16e-4a3c-9b8c-ac5667b4fd99" config-ref="Database_Config">
+			<db:sql ><![CDATA[DELETE FROM r0dh8wr85cykitd0.Employee WHERE id=:ID]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{'ID' : attributes.uriParams.ID}]]]></db:input-parameters>
+		</db:delete>
+		<ee:transform doc:name="Transform Message" doc:id="8765f7dc-0e95-4c95-a234-b7e3d375fd1a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Message":"Delete data successfully."
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
